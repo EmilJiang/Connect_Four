@@ -1,7 +1,7 @@
 import java.awt.*;
 
-public class HardComputerPlayer extends Player{
-    HardComputerPlayer(Color color, String name) {
+public class MediumComputerPlayer extends Player{
+    MediumComputerPlayer(Color color, String name) {
         super(color, name);
     }
 

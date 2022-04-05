@@ -12,11 +12,23 @@ public class GameScreen extends JPanel implements ActionListener, MouseMotionLis
     private RightEnd rightEnd;
     private LeftEnd leftEnd;
     private Board board;
+    private boolean placePiece;
+    private int[][][] posList;
+    private int column;
+    public boolean gameOver;
     GameScreen(Game game){
-
+        this.column = -1;
+        gameOver = false;
+        this.posList = new int[6][7][2];
+        for(int y = 0 ;y<6; y++){
+            for (int x =0; x<7; x++){
+                posList[y][x][0] = 205+(x*115);
+                posList[y][x][1] = 115+(y*100);
+            }
+        }
         this.game = game;
         this.board = new Board();
-
+        this.placePiece = false;
         panelNumber = 0;
         rightEnd = new RightEnd(120,600,100,875,100);
         leftEnd = new LeftEnd(120,600,100,300,100);
@@ -83,7 +95,18 @@ public class GameScreen extends JPanel implements ActionListener, MouseMotionLis
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource()==timer){
+            if(gameOver){
+                System.exit(0);
+            }
+            if(game.checkForWinner(game.getCurrentPlayer()) != null){
+                gameOver = true;
+                System.out.println(game.getCurrentPlayer().getName() + "won");
+            }
             this.repaint();
+            if(game.getCurrentPlayer().isComputer()){
+                placePiece = true;
+                game.getCurrentPlayer().playMove(game);
+            }
         }
 
     }
@@ -162,7 +185,7 @@ public class GameScreen extends JPanel implements ActionListener, MouseMotionLis
             //unshaded region
             g.setColor(new Color(0x28BE28));
             g.fillRect(300,100,345,600);
-            g.fillRect(760,100,200,600);
+            g.fillRect(760,100,150,600);
             graphics.fill(leftEnd);
             graphics.fill(rightEnd);
         }
@@ -173,7 +196,7 @@ public class GameScreen extends JPanel implements ActionListener, MouseMotionLis
             //unshaded region
             g.setColor(new Color(0x28BE28));
             g.fillRect(300,100,460,600);
-            g.fillRect(875,100,100,600);
+            g.fillRect(875,100,50,600);
             graphics.fill(leftEnd);
             graphics.fill(rightEnd);
         }
@@ -192,16 +215,41 @@ public class GameScreen extends JPanel implements ActionListener, MouseMotionLis
             g.fillRect(300,100,575,600);
             graphics.fill(rightEnd);
         }
-        g.setColor(Color.white);
-            for(int i = 0; i<7; i++){
-                for(int j = 0; j<6; j++){
-                    graphics.fillOval(205+(i*115), 115+(j*100), 75, 75);
+        if(placePiece){
+            game.getBoard().printBoard();
+            for(int i = 5; i>=0; i--){
+                if(game.getBoard().getBoardPos()[i][column] == null){
+                    g.setColor(game.getCurrentPlayer().getColor());
+                    graphics.fillOval(posList[i][column][0], posList[i][column][1], 75, 75);
                 }
             }
+            placePiece = false;
+            game.endTurn();
+        }
+//        g.setColor(Color.white);
+//        for(int i = 0; i<7; i++){
+//            for(int j = 0; j<6; j++){
+//                graphics.fillOval(205+(i*115), 115+(j*100), 75, 75);
+//            }
+//        }
+        for (int y = 0; y < 6; y++) {
+            for (int x = 0; x < 7; x++) {
+                if (game.getBoard().getBoardPos()[y][x] == null) {
+                    g.setColor(Color.WHITE);
+                    graphics.fillOval(posList[y][x][0], posList[y][x][1], 75, 75);
+                } else if (game.getBoard().getBoardPos()[y][x].getOwner().getColor() == Color.RED) {
+                    g.setColor(Color.RED);
+                    graphics.fillOval(posList[y][x][0], posList[y][x][1], 75, 75);
+                } else if (game.getBoard().getBoardPos()[y][x].getOwner().getColor() == Color.YELLOW) {
+                    g.setColor(Color.YELLOW);
+                    graphics.fillOval(posList[y][x][0], posList[y][x][1], 75, 75);
+                }
+            }
+        }
     }
 
     public static void main(String args[]){
-        new GameScreen(new Game(new HumanPlayer(Color.red,"bob"), new HumanPlayer(Color.yellow,"frank")));
+        new GameScreen(new Game(new HumanPlayer(Color.red,"bob"), new EasyComputerPlayer(Color.yellow, "jenny")));
     }
 
     @Override
@@ -211,27 +259,27 @@ public class GameScreen extends JPanel implements ActionListener, MouseMotionLis
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        if(e.getY() > 100 && e.getY()<600){
+        if(e.getY() > 100 && e.getY()<705){
 
-            if(e.getX()>=200 && e.getX()< 315){
+            if(e.getX()>=180 && e.getX()< 305){
                 panelNumber = 1;
             }
-            else if(e.getX()>=315 && e.getX()< 430){
+            else if(e.getX()>=305 && e.getX()< 415){
                 panelNumber = 2;
             }
-            else if(e.getX()>=430 && e.getX()< 545){
+            else if(e.getX()>=415 && e.getX()< 530){
                 panelNumber = 3;
             }
-            else if(e.getX()>=545 && e.getX()< 660){
+            else if(e.getX()>=530 && e.getX()< 645){
                 panelNumber = 4;
             }
-            else if(e.getX()>=660 && e.getX()< 775){
+            else if(e.getX()>=645 && e.getX()< 760){
                 panelNumber = 5;
             }
-            else if(e.getX()>=775 && e.getX()< 890){
+            else if(e.getX()>=760 && e.getX()< 875){
                 panelNumber = 6;
             }
-            else if(e.getX()>=890 && e.getX()< 1000){
+            else if(e.getX()>=875 && e.getX()< 1000){
                 panelNumber = 7;
             }
             else{
@@ -250,9 +298,16 @@ public class GameScreen extends JPanel implements ActionListener, MouseMotionLis
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if(panelNumber!=0){
-            game.makeMove(panelNumber);
+        if(!game.getCurrentPlayer().isComputer()){
+            if(panelNumber!=0){
+                if(game.makeMove(panelNumber-1)){
+                    placePiece = true;
+                    column = panelNumber - 1;
+                }
+
+            }
         }
+
     }
 
     @Override

@@ -13,9 +13,15 @@ class Game {
         this.board = new Board();
 // 		gameState lets the game know who's turn it is.
     }
-    public void makeMove(int spot) {
-        board.placePiece(spot,players[gameState - 1]);
-        moveNumber++;
+    public boolean makeMove(int spot) {
+        boolean hey = board.placePiece(spot,players[gameState - 1]);
+        if (hey) {
+            moveNumber++;
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     public void takeBackMove(int spot) {
         board.removePiece(spot);
