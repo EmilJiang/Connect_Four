@@ -1,7 +1,10 @@
 import java.awt.Color;
 
-class Board {
+class Board implements Cloneable{
     private Piece[][] board = new Piece[6][7];
+    public Object clone()throws CloneNotSupportedException{
+        return super.clone();
+    }
 
 // 	[rows][columns]
     /* * * * * * *
@@ -13,6 +16,12 @@ class Board {
 
     public Piece[][] getBoardPos() {
         return board;
+    }
+    public void setBoardPos(int y, int x, Player player){
+        board[y][x] = new Piece(player);
+    }
+    public void setBoardPos(int y, int x){
+        board[y][x] = null;
     }
     public boolean isOccupied(int x, int y) {
         if(board[y][x] != null) {
@@ -33,11 +42,11 @@ class Board {
         return false;
     }
     public void removePiece(int spot) {
-        for (int a = 5; a > -1; a--) {
+        boolean cont = true;
+        for (int a = 0; a < 7; a++) {
             if (isOccupied(spot,a)) {
-            } else {
                 board[a][spot] = null;
-                a = -1;
+                a = 100;
             }
         }
     }
@@ -120,6 +129,7 @@ class Board {
             }
             System.out.println();
         }
+        System.out.println("----------------------");
     }
 
 }
